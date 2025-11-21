@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#00796B">
+  <title>EcoBadge Auth Console</title>
+  <link rel="stylesheet" href="/css/tailwind.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+
+<body class="eco-theme min-h-screen font-sans">
+  <% const flaskHealthy=typeof flaskOnline==="boolean" ? flaskOnline : false; %>
+    <div class="max-w-6xl mx-auto py-10 px-4 space-y-6">
+      <header class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <div class="brand-mark">
+            <span class="leaf stem"></span>
+            <span class="leaf blade"></span>
+          </div>
+          <div>
+            <p class="text-xs uppercase tracking-[0.4em] text-[color:var(--accent-secondary)]">EcoBadge</p>
+            <h1 class="text-2xl font-semibold leading-tight text-[color:var(--text-main)]">Smart Environmental
+              Credentials</h1>
+          </div>
+        </div>
+        <div class="flex flex-wrap gap-3 text-sm text-slate-500">
+          <span class="status-chip <%= flaskHealthy ? 'online' : 'offline' %>">
+            <span class="status-dot"></span>
+            <%= flaskHealthy ? "Flask API connected" : "Flask API offline" %>
+          </span>
+          <span class="hidden sm:inline text-slate-600">|</span>
+          <span>Supabase secured</span>
+        </div>
+      </header>
+
+      <main class="min-h-[calc(100vh-80px)] flex items-center justify-center p-4 lg:p-8"
+        data-initial-view="<%= mode || 'signup' %>">
+
+        <!-- UNIFIED CONSOLE CARD -->
+        <div
+          class="w-full max-w-6xl bg-white rounded-[2.5rem] shadow-2xl overflow-hidden grid lg:grid-cols-5 min-h-[600px]">
+
+          <!-- LEFT PANEL: VISUALS (3/5) -->
+          <div class="lg:col-span-3 bg-green-50/50 p-8 lg:p-12 flex flex-col justify-between relative overflow-hidden">
+            <!-- Background Decoration -->
+            <div class="absolute top-0 right-0 w-64 h-64 bg-green-100 rounded-full blur-3xl -mr-20 -mt-20 opacity-60">
+            </div>
+            <div class="absolute bottom-0 left-0 w-64 h-64 bg-teal-100 rounded-full blur-3xl -ml-20 -mb-20 opacity-60">
+            </div>
+
+            <!-- Header Content -->
+            <div class="relative z-10">
+              <p class="text-xs uppercase tracking-[0.3em] text-[color:var(--accent-secondary)] font-bold mb-3">Smart
+                Eco-Driving Platform</p>
+              <h2 class="text-3xl lg:text-4xl font-bold leading-tight text-[color:var(--text-main)] max-w-lg">
+                Drive Greener. Earn Rewards. Make an Impact.
+              </h2>
+              <p class="text-slate-600 mt-4 max-w-md leading-relaxed">
+                Track your emissions in real-time, improve your eco-score, and unlock exclusive rewards for sustainable
+                driving.
+              </p>
+            </div>
+
+            <!-- Hero Visual -->
+            <div class="relative z-10 my-8">
+              <div class="bg-white/40 backdrop-blur-sm rounded-3xl border border-white/60 p-6 shadow-sm">
+                <%- include('partials/car-animation') %>
+                  <p class="text-center text-xs text-green-700/60 mt-4 uppercase tracking-widest font-medium">Live
+                    Emission Tracking</p>
+              </div>
+            </div>
+
+            <!-- Stats Footer -->
+            <div class="relative z-10 grid sm:grid-cols-2 gap-4">
+              <div class="bg-white/60 backdrop-blur-sm p-5 rounded-2xl border border-white/50">
+                <div class="flex items-center gap-3 mb-2">
+                  <div class="p-2 bg-green-50 rounded-lg text-[color:var(--accent-primary)]"><i data-lucide="leaf"
+                      class="w-4 h-4"></i>
+                  </div>
+                  <p class="text-xs uppercase tracking-wider text-[color:var(--text-muted)] font-bold">EcoScore</p>
+                </div>
+                <p class="text-3xl font-bold text-[color:var(--text-main)]">85</p>
+                <p class="text-xs text-[color:var(--accent-primary)] font-medium mt-1">+5pts this week</p>
+              </div>
+              <div class="bg-white/60 backdrop-blur-sm p-5 rounded-2xl border border-white/50">
+                <div class="flex items-center gap-3 mb-2">
+                  <div class="p-2 bg-teal-50 rounded-lg text-[color:var(--accent-secondary)]"><i data-lucide="wallet"
+                      class="w-4 h-4"></i>
+                  </div>
+                  <p class="text-xs uppercase tracking-wider text-[color:var(--text-muted)] font-bold">Wallet</p>
+                </div>
+                <p class="text-3xl font-bold text-[color:var(--text-main)]">1,540</p>
+                <p class="text-xs text-[color:var(--accent-secondary)] font-medium mt-1">pts toward Master Tuner</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- RIGHT PANEL: AUTH (2/5) -->
+          <div class="lg:col-span-2 bg-white p-8 lg:p-12 flex flex-col justify-center relative">
+            <div class="max-w-sm mx-auto w-full space-y-8">
+
+              <!-- SIGNUP FORM -->
+              <form id="signupPanel" method="POST" action="/signup"
+                class="<%= mode === 'login' ? 'hidden' : '' %> space-y-6">
+                <div class="text-center">
+                  <h3 class="text-2xl font-bold text-[color:var(--text-main)]">Create Account</h3>
+                  <p class="text-[color:var(--text-muted)] mt-2">Start your eco journey today.</p>
+                </div>
+
+                <div class="space-y-4">
+                  <label class="block">
+                    <span class="text-sm font-medium text-slate-700 ml-1">Email</span>
+                    <input type="email" name="email" placeholder="earthkeeper@ecobadge.org" required
+                      class="mt-1.5 w-full px-4 py-3.5 rounded-xl bg-slate-50 border border-slate-200 focus:border-green-500 focus:ring-2 focus:ring-green-500/20 outline-none text-slate-900 placeholder-slate-400 transition-all" />
+                  </label>
+                  <label class="block">
+                    <span class="text-sm font-medium text-slate-700 ml-1">Password</span>
+                    <input type="password" name="password" placeholder="Create a secure passphrase" required
+                      class="mt-1.5 w-full px-4 py-3.5 rounded-xl bg-slate-50 border border-slate-200 focus:border-green-500 focus:ring-2 focus:ring-green-500/20 outline-none text-slate-900 placeholder-slate-400 transition-all" />
+                  </label>
+                </div>
+
+                <button type="submit"
+                  class="w-full py-4 rounded-xl bg-[color:var(--accent-primary)] hover:opacity-90 text-white font-bold shadow-lg shadow-green-900/10 transition-all transform hover:-translate-y-0.5">
+                  Sign Up
+                </button>
+
+                <p class="text-center text-sm mt-4">
+                  Already have an account? <a href="/login"
+                    class="text-[color:var(--accent-primary)] hover:underline">Log in</a>
+                </p>
+              </form>
+
+              <!-- LOGIN FORM -->
+              <form id="loginPanel" method="POST" action="/login"
+                class="<%= mode === 'login' ? '' : 'hidden' %> space-y-6">
+                <div class="text-center">
+                  <h3 class="text-2xl font-bold text-[color:var(--text-main)]">Welcome Back</h3>
+                  <p class="text-[color:var(--text-muted)] mt-2">Access your dashboard.</p>
+                </div>
+
+                <div class="space-y-4">
+                  <label class="block">
+                    <span class="text-sm font-medium text-slate-700 ml-1">Email</span>
+                    <input type="email" name="email" placeholder="pilot@ecobadge.org" required
+                      class="mt-1.5 w-full px-4 py-3.5 rounded-xl bg-slate-50 border border-slate-200 focus:border-green-500 focus:ring-2 focus:ring-green-500/20 outline-none text-slate-900 placeholder-slate-400 transition-all" />
+                  </label>
+                  <label class="block">
+                    <span class="text-sm font-medium text-slate-700 ml-1">Password</span>
+                    <input type="password" name="password" placeholder="Enter your password" required
+                      class="mt-1.5 w-full px-4 py-3.5 rounded-xl bg-slate-50 border border-slate-200 focus:border-green-500 focus:ring-2 focus:ring-green-500/20 outline-none text-slate-900 placeholder-slate-400 transition-all" />
+                  </label>
+                </div>
+
+                <button type="submit"
+                  class="w-full py-4 rounded-xl bg-[color:var(--accent-primary)] hover:opacity-90 text-white font-bold shadow-lg shadow-green-900/10 transition-all transform hover:-translate-y-0.5">
+                  Log In
+                </button>
+
+                <p class="text-center text-sm mt-4">
+                  Need an account? <a href="/signup" class="text-[color:var(--accent-primary)] hover:underline">Sign
+                    up</a>
+                </p>
+              </form>
+            </div>
+          </div>
+
+        </div>
+      </main>
+    </div>
+
+    <div id="responseModal" class="modal" aria-hidden="true">
+      <div class="modal-card bg-slate-900 text-slate-100">
+        <button class="close" aria-label="Close">&times;</button>
+        <div>
+          <p class="text-xs uppercase tracking-[0.3em] text-slate-400 mb-1">Flask API response</p>
+          <h3 id="modalTitle" class="text-2xl font-semibold mb-2"></h3>
+          <p id="modalMessage" class="text-sm text-slate-300 mb-4"></p>
+          <div id="modalDetails" class="modal-details hidden"></div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const flashData = <% - JSON.stringify(flash || null) %>;
+      const modal = document.getElementById("responseModal");
+      const title = document.getElementById("modalTitle");
+      const message = document.getElementById("modalMessage");
+      const details = document.getElementById("modalDetails");
+      const closeBtn = document.querySelector(".modal .close");
+      const signupPanel = document.getElementById("signupPanel");
+      const loginPanel = document.getElementById("loginPanel");
+      const initialMode = '<%= mode || "signup" %>';
+
+      function closeModal() {
+        modal.setAttribute("aria-hidden", "true");
+        modal.classList.remove("open", "success", "warning", "error");
+      }
+
+      closeBtn?.addEventListener("click", closeModal);
+      modal?.addEventListener("click", (event) => {
+        if (event.target === modal) closeModal();
+      });
+
+      // Panel toggle logic removed – navigation now uses dedicated pages via links.
+
+
+      function renderDetails(data) {
+        if (!details) return;
+
+        let normalized = null;
+        if (Array.isArray(data) && data.length > 0) {
+          normalized = data[0];
+        } else if (data && typeof data === "object") {
+          normalized = data;
+        }
+
+        if (!normalized) {
+          details.classList.add("hidden");
+          details.innerHTML = "";
+          return;
+        }
+
+        const entries = Object.entries(normalized).filter(([key]) => key !== "message");
+        if (!entries.length) {
+          details.classList.add("hidden");
+          details.innerHTML = "";
+          return;
+        }
+
+        const html = entries
+          .map(
+            ([key, value]) => `
+            <div class="detail-row">
+              <span class="detail-label">${key}</span>
+              <span class="detail-value">${value ?? "—"}</span>
+            </div>
+          `
+          )
+          .join("");
+
+        details.innerHTML = html;
+        details.classList.remove("hidden");
+      }
+
+      if (flashData) {
+        const titleText =
+          flashData.type === "success"
+            ? "Success"
+            : flashData.type === "warning"
+              ? "Check details"
+              : "Something went wrong";
+        title.textContent = titleText;
+        title.className =
+          flashData.type === "success"
+            ? "text-emerald-400 text-2xl font-semibold mb-2"
+            : flashData.type === "warning"
+              ? "text-amber-400 text-2xl font-semibold mb-2"
+              : "text-rose-400 text-2xl font-semibold mb-2";
+        message.textContent = flashData.message;
+        renderDetails(flashData.data ?? null);
+        modal.classList.add("open", flashData.type);
+        modal.setAttribute("aria-hidden", "false");
+      }
+
+      if (window.lucide) {
+        lucide.createIcons();
+      }
+    </script>
+</body>
+
+</html>

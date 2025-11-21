@@ -1,0 +1,129 @@
+<style>
+    .car-container {
+        position: relative;
+        width: 100%;
+        height: 200px;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .car-wrapper {
+        position: relative;
+        animation: carBounce 2s infinite ease-in-out;
+    }
+
+    .car-body {
+        fill: #15803d;
+        /* Forest Green */
+    }
+
+    .car-window {
+        fill: #ecfdf5;
+        /* Emerald 50 */
+    }
+
+    .car-wheel {
+        fill: #022c22;
+        /* Emerald 950 */
+        animation: wheelSpin 1s infinite linear;
+        transform-origin: center;
+        transform-box: fill-box;
+    }
+
+    .smoke-particle {
+        position: absolute;
+        background: #64748b;
+        /* Slate 500 */
+        border-radius: 50%;
+        opacity: 0;
+    }
+
+    .smoke-1 {
+        width: 10px;
+        height: 10px;
+        top: 65%;
+        left: -10px;
+        animation: smoke 2s infinite 0s;
+    }
+
+    .smoke-2 {
+        width: 15px;
+        height: 15px;
+        top: 60%;
+        left: -20px;
+        animation: smoke 2s infinite 0.5s;
+    }
+
+    .smoke-3 {
+        width: 20px;
+        height: 20px;
+        top: 55%;
+        left: -30px;
+        animation: smoke 2s infinite 1s;
+    }
+
+    @keyframes wheelSpin {
+        from {
+            transform: rotate(0deg);
+        }
+
+        to {
+            transform: rotate(-360deg);
+        }
+    }
+
+    @keyframes carBounce {
+
+        0%,
+        100% {
+            transform: translateY(0);
+        }
+
+        50% {
+            transform: translateY(-3px);
+        }
+    }
+
+    @keyframes smoke {
+        0% {
+            opacity: 0.8;
+            transform: scale(1) translate(0, 0);
+        }
+
+        100% {
+            opacity: 0;
+            transform: scale(2.5) translate(-60px, -20px);
+        }
+    }
+</style>
+
+<div class="car-container">
+    <div class="car-wrapper">
+        <!-- SMOKE PARTICLES -->
+        <div class="smoke-particle smoke-1"></div>
+        <div class="smoke-particle smoke-2"></div>
+        <div class="smoke-particle smoke-3"></div>
+
+        <!-- SVG CAR -->
+        <svg width="200" height="100" viewBox="0 0 200 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- Body -->
+            <path d="M20 50 L40 30 L120 30 L150 50 L190 50 L190 80 L10 80 L10 50 Z" class="car-body" />
+            <rect x="10" y="50" width="180" height="30" rx="5" class="car-body" />
+
+            <!-- Windows -->
+            <path d="M45 35 L115 35 L140 50 L25 50 Z" class="car-window" />
+
+            <!-- Wheels -->
+            <circle cx="45" cy="80" r="12" class="car-wheel" />
+            <circle cx="155" cy="80" r="12" class="car-wheel" />
+
+            <!-- Wheel Spokes (for rotation visibility) -->
+            <path d="M45 68 L45 92 M33 80 L57 80" stroke="#ecfdf5" stroke-width="2" class="car-wheel-spokes"
+                style="transform-origin: 45px 80px; animation: wheelSpin 1s infinite linear;" />
+            <path d="M155 68 L155 92 M143 80 L167 80" stroke="#ecfdf5" stroke-width="2" class="car-wheel-spokes"
+                style="transform-origin: 155px 80px; animation: wheelSpin 1s infinite linear;" />
+        </svg>
+    </div>
+</div>

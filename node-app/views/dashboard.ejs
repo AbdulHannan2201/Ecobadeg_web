@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EcoBadge Control Center</title>
+  <link rel="stylesheet" href="/css/tailwind.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="/styles.css" />
+  <style>
+    .radial-progress {
+      width: clamp(140px, 32vw, 180px);
+      height: clamp(140px, 32vw, 180px);
+      border-radius: 50%;
+      background:
+        radial-gradient(closest-side, #020617 78%, rgba(15, 23, 42, 0) 80% 100%),
+        conic-gradient(#22c55e <%=dashboardData.ecoScore %>%, rgba(30, 41, 59, 0.8) 0);
+      position: relative;
+      margin-inline: auto;
+    }
+
+    .radial-progress span {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: clamp(36px, 8vw, 48px);
+      font-weight: 700;
+      color: #22c55e;
+    }
+
+    @media (max-width: 640px) {
+      .status-chip {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+
+<body class="eco-theme dash min-h-screen">
+  <% const flaskHealthy=typeof flaskOnline==="boolean" ? flaskOnline : false; %>
+    <div class="max-w-6xl mx-auto px-4 py-10 space-y-8">
+
+      <!-- HEADER -->
+      <header class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <div>
+          <p class="text-xs uppercase tracking-[0.4em] text-emerald-700/70 font-bold">EcoBadge Dashboard</p>
+          <h1 class="text-3xl sm:text-4xl font-bold mt-1 text-emerald-950">
+            Welcome back<% if (user && user.email) { %>, <span class="text-emerald-600">
+                <%= user.email.split('@')[0] %>
+              </span>
+              <% } %>!
+          </h1>
+          <p class="text-slate-600 font-medium mt-2 max-w-2xl">
+            Track your eco-driving performance, monitor emissions in real-time, and earn rewards for sustainable driving
+            habits.
+          </p>
+        </div>
+
+        <!-- HEADER CONTROLS -->
+        <div class="flex flex-wrap gap-3 items-center text-sm text-slate-400">
+          <span
+            class="status-chip <%= flaskHealthy ? 'online' : 'offline' %> bg-white/50 border-emerald-200 text-emerald-800 font-medium">
+            <span class="status-dot"></span>
+            <%= flaskHealthy ? "Flask API connected" : "Flask API offline" %>
+          </span>
+
+          <a href="/"
+            class="status-chip online hover:-translate-y-0.5 transition bg-white/50 border-emerald-200 text-emerald-800 font-medium">Back
+            to access portal</a>
+
+          <!-- PROFILE BUTTON -->
+          <div class="relative">
+            <button id="profileBtn"
+              class="w-10 h-10 rounded-full bg-white border-2 border-[color:var(--accent-secondary)] overflow-hidden hover:border-[color:var(--accent-primary)] transition-all shadow-sm">
+              <img src="/profile-avatar.png" alt="Profile" class="w-full h-full object-cover">
+            </button>
+            <div id="profileDropdown"
+              class="hidden absolute right-0 mt-2 w-48 bg-white border border-slate-100 rounded-xl shadow-lg z-50 text-[color:var(--text-main)] animate-enter">
+              <ul class="flex flex-col">
+                <li class="px-4 py-2 hover:bg-slate-50 cursor-pointer first:rounded-t-xl">View Profile</li>
+                <li class="px-4 py-2 hover:bg-slate-50 cursor-pointer">Settings</li>
+                <li class="px-4 py-2 hover:bg-slate-50 cursor-pointer last:rounded-b-xl">
+                  <form method="POST" action="/logout" class="m-0">
+                    <button type="submit" class="w-full text-left">Logout</button>
+                  </form>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- MAIN DASHBOARD -->
+      <main class="space-y-8">
+
+        <!-- ROW 1: MAIN DIALS -->
+        <section class="grid grid-cols-1 md:grid-cols-2 gap-8 justify-items-center animate-enter"
+          style="animation-delay: 0.1s;">
+          <!-- CO2 DIAL -->
+          <div class="flex flex-col items-center gap-4">
+            <div class="dial-container"
+              style="--dial-color: #10b981; --dial-percent: <%= dashboardData.gasLevels.co2 * 80 %>deg;">
+              <div class="dial-inner">
+                <span class="dial-value">
+                  <%= dashboardData.gasLevels.co2 %>
+                </span>
+                <span class="dial-unit">kg/km</span>
+                <span class="dial-label">CO₂</span>
+              </div>
+            </div>
+            <p class="text-sm text-slate-500 uppercase tracking-widest font-bold">Carbon Dioxide</p>
+          </div>
+
+          <!-- CO DIAL -->
+          <div class="flex flex-col items-center gap-4">
+            <div class="dial-container"
+              style="--dial-color: #f59e0b; --dial-percent: <%= dashboardData.gasLevels.co * 1800 %>deg;">
+              <div class="dial-inner">
+                <span class="dial-value">
+                  <%= dashboardData.gasLevels.co %>
+                </span>
+                <span class="dial-unit">g/km</span>
+                <span class="dial-label">CO</span>
+              </div>
+            </div>
+            <p class="text-sm text-slate-500 uppercase tracking-widest font-bold">Carbon Monoxide</p>
+          </div>
+        </section>
+
+        <!-- ROW 2: EMISSIONS GRAPH -->
+        <section class="glass-card p-6 bg-white/60 border-white/50 animate-enter" style="animation-delay: 0.2s;">
+          <div class="flex items-center justify-between mb-6">
+            <div>
+              <p class="text-xs uppercase tracking-[0.35em] text-slate-500 font-bold">Emission History</p>
+              <h3 class="text-xl font-semibold text-emerald-950">Concentration Trends</h3>
+            </div>
+            <select
+              class="bg-white border border-emerald-100 text-slate-700 text-sm rounded-lg px-3 py-1 outline-none focus:ring-2 focus:ring-emerald-200">
+              <option>Last 7 Days</option>
+              <option>Last 30 Days</option>
+            </select>
+          </div>
+          <div class="chart-shell" style="height: 300px;">
+            <canvas id="emissionChart"></canvas>
+          </div>
+        </section>
+
+        <!-- ROW 3: STATS GRID -->
+        <section class="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-enter" style="animation-delay: 0.3s;">
+
+          <!-- ECO SCORE -->
+          <div
+            class="glass-card p-6 flex flex-col items-center justify-center text-center gap-2 hover:border-[color:var(--accent-primary)] transition-colors group">
+            <div
+              class="p-3 bg-green-50 rounded-full text-[color:var(--accent-primary)] mb-2 group-hover:scale-110 transition-transform">
+              <i data-lucide="leaf" class="w-6 h-6"></i>
+            </div>
+            <p class="text-4xl font-bold text-[color:var(--text-main)]">
+              <%= dashboardData.ecoScore %>
+            </p>
+            <p class="text-xs uppercase tracking-widest text-[color:var(--text-muted)]">Eco Score</p>
+          </div>
+
+          <!-- WALLET -->
+          <div
+            class="glass-card p-6 flex flex-col items-center justify-center text-center gap-2 hover:border-[color:var(--accent-secondary)] transition-colors group">
+            <div class="p-3 bg-cyan-50 rounded-full text-cyan-600 mb-2 group-hover:scale-110 transition-transform">
+              <i data-lucide="wallet" class="w-6 h-6"></i>
+            </div>
+            <p class="text-4xl font-bold text-[color:var(--text-main)]">
+              <%= dashboardData.wallet.points %>
+            </p>
+            <p class="text-xs uppercase tracking-widest text-[color:var(--text-muted)]">Impact Points</p>
+            <div class="mt-4 w-full">
+              <p class="text-xs text-slate-500 mb-2 font-bold">Next Reward</p>
+              <div class="flex items-center justify-center gap-2 bg-white/80 p-3 rounded-xl border border-emerald-100">
+                <i data-lucide="award" class="w-4 h-4 text-amber-500"></i>
+                <span class="text-xs font-medium text-slate-700">
+                  <%= dashboardData.wallet.nextReward %>
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- RECENT TRIPS -->
+          <div class="glass-card p-6 bg-white/60 border-white/50">
+            <p class="text-xs uppercase tracking-[0.35em] text-slate-500 mb-4 font-bold">Recent Trips</p>
+            <div class="space-y-3">
+              <% dashboardData.trips.forEach((trip)=> { %>
+                <div
+                  class="flex items-center justify-between p-3 rounded-xl bg-white/50 border border-emerald-50 hover:bg-white/80 transition">
+                  <div class="flex items-center gap-3">
+                    <div
+                      class="w-2 h-2 rounded-full <%= trip.tone === 'positive' ? 'bg-emerald-500' : trip.tone === 'neutral' ? 'bg-amber-500' : 'bg-rose-500' %>">
+                    </div>
+                    <span class="text-sm font-medium text-slate-700">
+                      <%= trip.name %>
+                    </span>
+                  </div>
+                  <span
+                    class="text-sm font-bold <%= trip.tone === 'positive' ? 'text-emerald-600' : trip.tone === 'neutral' ? 'text-amber-600' : 'text-rose-600' %>">
+                    <%= trip.score %>
+                  </span>
+                </div>
+                <% }) %>
+            </div>
+          </div>
+
+        </section>
+      </main>
+    </div>
+
+    <!-- SCRIPT -->
+    <script>
+      lucide.createIcons();
+
+      const emissionCtx = document.getElementById("emissionChart")?.getContext("2d");
+      if (emissionCtx) {
+        const emissionData = <% - JSON.stringify(dashboardData.emissionsHistory) %>;
+        new Chart(emissionCtx, {
+          type: "line",
+          data: {
+            labels: emissionData.map((entry) => entry.label),
+            datasets: [
+              {
+                label: "CO₂ (kg/km)",
+                data: emissionData.map((entry) => entry.co2),
+                borderColor: "#22c55e",
+                tension: 0.35,
+                fill: false,
+                pointBackgroundColor: "#22c55e",
+              },
+              {
+                label: "CO (g/km)",
+                data: emissionData.map((entry) => entry.co),
+                borderColor: "#f59e0b",
+                tension: 0.35,
+                fill: false,
+                pointBackgroundColor: "#f59e0b",
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { labels: { color: "#cbd5f5" } },
+            },
+            scales: {
+              x: { ticks: { color: "#94a3b8" }, grid: { color: "rgba(148, 163, 184, 0.15)" } },
+              y: { ticks: { color: "#94a3b8" }, grid: { color: "rgba(148, 163, 184, 0.15)" } },
+            },
+          },
+        });
+      }
+
+      // Profile dropdown toggle
+      const profileBtn = document.getElementById("profileBtn");
+      const profileDropdown = document.getElementById("profileDropdown");
+      profileBtn.addEventListener("click", () => profileDropdown.classList.toggle("hidden"));
+      window.addEventListener("click", (e) => {
+        if (!profileBtn.contains(e.target) && !profileDropdown.contains(e.target)) {
+          profileDropdown.classList.add("hidden");
+        }
+      });
+    </script>
+</body>
+
+</html>
