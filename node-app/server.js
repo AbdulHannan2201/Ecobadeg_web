@@ -54,10 +54,11 @@ app.get("/", async (req, res) => {
     return res.redirect(303, "/dashboard");
   }
   const flaskOnline = await isFlaskReachable();
+  console.log(JSON.stringify(null || null));
   res.render("index", { flash: null, mode: "signup", flaskOnline });
 });
 
-app.get('/login', async (req, res) => {
+app.get('/login', (req, res) => {
   const error = req.query.error;
   let flash = null;
   if (error === 'exists') {
@@ -65,11 +66,10 @@ app.get('/login', async (req, res) => {
   } else if (error) {
     flash = { type: 'warning', message: error };
   }
-  const flaskOnline = await isFlaskReachable();
-  res.render('login', { mode: 'login', flash, flaskOnline });
+  res.render('login', { mode: 'login', flash, flaskOnline: true });
 });
 
-app.get('/signup', async (req, res) => {
+app.get('/signup', (req, res) => {
   const error = req.query.error;
   if (error === 'exists') {
     return res.redirect('/login?error=exists');
@@ -77,28 +77,29 @@ app.get('/signup', async (req, res) => {
   let flash = null;
   if (error === 'failed') {
     flash = { type: 'error', message: 'Signup failed. Please try again.' };
-  } else if (error) {
-    flash = { type: 'error', message: error };
   }
-  const flaskOnline = await isFlaskReachable();
-  res.render('signup', { mode: 'signup', flash, flaskOnline });
+  res.render('index', { mode: 'signup', flash, flaskOnline: true }); // Assuming flask is online for rendering signup page
 });
 
 app.post("/signup", async (req, res) => {
   const { email, password } = req.body;
 
-  if (!email || !password) {
-    return res.redirect(303, '/signup?error=' + encodeURIComponent('Email and password are required'));
-  }
-
+  // Demo Bypass for Testing
   if (email === "pilot@ecobadge.org" && password === "password") {
     req.session.user = { email, id: "demo-user" };
     return res.redirect(303, "/dashboard");
   }
 
+  // Demo check: if email already exists (demo email), redirect back with error
+  if (email === 'pilot@ecobadge.org') {
+    // Redirect to signup with error message
+    return res.redirect(303, '/signup?error=exists');
+  }
+
   const flash = await proxyAuthRequest("/signup", { email, password });
 
   if (flash.type === "success") {
+    // Store user in session
     req.session.user = {
       email,
       id: flash.data?.user_id || email,
@@ -106,20 +107,22 @@ app.post("/signup", async (req, res) => {
     return res.redirect(303, "/dashboard");
   }
 
-  if (flash.message && flash.message.includes('already exists')) {
-    return res.redirect(303, '/login?error=exists');
-  }
-
+  // If signup failed, redirect to signup with error
   return res.redirect(303, `/signup?error=${encodeURIComponent(flash.message)}`);
 });
 
 app.post("/login", async (req, res) => {
   const { email, password } = req.body;
 
-  if (!email || !password) {
-    return res.redirect(303, '/login?error=' + encodeURIComponent('Email and password are required'));
-  }
+  // Debug logging
+  console.log('Login attempt received:', {
+    email: `"${email}"`,
+    password: `"${password}"`,
+    emailLength: email?.length,
+    passwordLength: password?.length
+  });
 
+  // Demo Bypass for Testing
   if (email === "pilot@ecobadge.org" && password === "password") {
     req.session.user = { email, id: "demo-user" };
     return res.redirect(303, "/dashboard");
@@ -128,6 +131,7 @@ app.post("/login", async (req, res) => {
   const flash = await proxyAuthRequest("/login", { email, password });
 
   if (flash.type === "success") {
+    // Store user in session
     req.session.user = {
       email,
       id: flash.data?.user_id || email,
@@ -135,7 +139,8 @@ app.post("/login", async (req, res) => {
     return res.redirect(303, "/dashboard");
   }
 
-  return res.redirect(303, '/login?error=' + encodeURIComponent(flash.message));
+  const flaskOnline = await isFlaskReachable();
+  res.render("index", { flash, mode: "login", flaskOnline });
 });
 
 app.get("/dashboard", requireAuth, async (req, res) => {
